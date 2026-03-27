@@ -1,13 +1,13 @@
 """End-to-end StatParse pipeline."""
 from pathlib import Path
 
-from .pdf_to_image import render_pdf
-from .preprocessing import preprocess
-from .segmentation import segment
-from .classification import classify
-from .reading_order import order_blocks
-from .ocr import recognize_text
-from .serialization import to_markdown
+from .pdf_to_image import render_pdf #librairie
+from .preprocessing import preprocess #Omar + Edgar
+from .segmentation import segment #Timothée
+from .classification import classify #todo
+from .reading_order import order_blocks #todo
+from .ocr import recognize_text #tesseract 
+from .serialization import to_markdown #librairie 
 
 
 class Pipeline:

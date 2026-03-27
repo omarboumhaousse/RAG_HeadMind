@@ -6,6 +6,8 @@ from scipy.signal import argrelmin
 from sklearn.neighbors import NearestNeighbors
 
 
+
+
 def segment(binary_image: np.ndarray) -> list[dict]:
     """Segment a binary image into blocks using statistical spatial clustering.
 

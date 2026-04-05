@@ -57,7 +57,7 @@ def _extract_connected_components(binary_image: np.ndarray):
     """Extract ink blobs from a binary page image.
 
     Uses OpenCV's optimised two-pass algorithm (He et al., 2017).
-    Row 0 of the stats/centroids arrays is the background — we skip it.
+    Row 0 of the stats/centroids arrays is the background, we skip it.
 
     Returns
     -------
@@ -81,14 +81,14 @@ def _merge_subcharacter_components(stats, centroids):
     """Merge CCs that are fragments of the same character.
 
     Many CJK characters (and Latin diacritics like ï, é) are split into
-    separate connected components by binarisation.  This function
+    separate connected components by binarisation. This function
     re-assembles them using spatial proximity (cKDTree), aspect-ratio
     constraints, and area limits to avoid merging unrelated blobs.
 
     Merge criteria (all must hold):
-        - edge-to-edge gap < 0.35 × median_h  (close enough)
+        - edge-to-edge gap < 0.35 * median_h  (close enough)
         - merged aspect ratio ∈ [0.25, 4.0]   (plausible glyph shape)
-        - merged area < 6 × median_area        (not merging across words)
+        - merged area < 6 * median_area       (not merging across words)
     """
     n = len(stats)
     if n <= 1:

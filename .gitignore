@@ -209,6 +209,7 @@ __marimo__/
 
 #fichiers volumineux
 images/
-pdfs2/
+pdfs_all/
+result/statparse
 result/docling
 OmniDocBench.json

@@ -97,7 +97,7 @@ class SauvolaBinarizer:
 
 
 def deskew(image: np.ndarray) -> np.ndarray:
-    coords = np.column_stack(np.where(image > 0))
+    coords = np.column_stack(np.where(image == 0))
     angle = cv2.minAreaRect(coords)[-1]
 
     if angle < -45:

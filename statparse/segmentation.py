@@ -81,14 +81,14 @@ def _merge_subcharacter_components(stats, centroids):
     """Merge CCs that are fragments of the same character.
 
     Many CJK characters (and Latin diacritics like ï, é) are split into
-    separate connected components by binarisation.  This function
+    separate connected components by binarisation. This function
     re-assembles them using spatial proximity (cKDTree), aspect-ratio
     constraints, and area limits to avoid merging unrelated blobs.
 
     Merge criteria (all must hold):
-        - edge-to-edge gap < 0.35 × median_h  (close enough)
+        - edge-to-edge gap < 0.35 * median_h  (close enough)
         - merged aspect ratio ∈ [0.25, 4.0]   (plausible glyph shape)
-        - merged area < 6 × median_area        (not merging across words)
+        - merged area < 6 * median_area       (not merging across words)
     """
     n = len(stats)
     if n <= 1:
@@ -396,7 +396,8 @@ def _fit_vbgmm(vectors_2d: np.ndarray) -> BayesianGaussianMixture:
         covariance_type="full",
         weight_concentration_prior_type="dirichlet_process",
         weight_concentration_prior=0.1,
-        max_iter=300,
+        max_iter=500,
+        n_init=3,
         random_state=42,
     )
     model.fit(vectors_2d)
@@ -816,7 +817,7 @@ def _hierarchical_merge(stats, centroids, labeled_edges, n_components,
 # POST-PROCESSING
 # ═══════════════════════════════════════════════════════════════════
 
-def _validate_with_projection_profile(binary_image, blocks, min_gap_ratio=2.5):
+def _validate_with_projection_profile(binary_image, blocks, min_gap_ratio=1.5):
     """Split blocks at large internal horizontal whitespace gaps.
 
     Only fires at gaps ≥ 2.5× median component height — far larger than
@@ -891,7 +892,7 @@ def _validate_with_projection_profile(binary_image, blocks, min_gap_ratio=2.5):
     return refined
 
 
-def _filter_blocks(blocks, img_shape, min_components=4, min_area=100):
+def _filter_blocks(blocks, img_shape, min_components=4, min_area=50):
     """Remove degenerate blocks (too few CCs, too small, or page-sized)."""
     img_area = img_shape[0] * img_shape[1]
     return [

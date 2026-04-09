@@ -57,7 +57,7 @@ def _extract_connected_components(binary_image: np.ndarray):
     """Extract ink blobs from a binary page image.
 
     Uses OpenCV's optimised two-pass algorithm (He et al., 2017).
-    Row 0 of the stats/centroids arrays is the background — we skip it.
+    Row 0 of the stats/centroids arrays is the background, we skip it.
 
     Returns
     -------

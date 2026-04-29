@@ -8,18 +8,44 @@ def preprocess(image: np.ndarray) -> np.ndarray:
 
     Steps:
         1. Convert to grayscale
-        2. Binarize (Otsu or Sauvola thresholding)
-        3. Deskew (projection profile variance maximization) Avec OpenCV pour avoir des prmeiers résultats
-        4. Denoise (morphological operations) J'obtiens pour l'insant de meilleurs résultats sans denoise sur les textes 
-        de Omnidobench qui sont très lisibles, je décide donc d'omettre cette étape dans la fonction preprocess
+        2. CLAHE — améliore le contraste localement (utile pour les figures à faible contraste)
+        3. Canny edge detection — préserve les contours des figures/graphiques
+        4. Binarize (Sauvola thresholding)
+        5. Fusion des contours Canny avec le binaire Sauvola
+        6. Deskew (projection profile variance maximization)
     """
-    
     gray = convertgrayscale(image)
-    binarizer = SauvolaBinarizer()
+    gray_uint8 = np.clip(gray, 0, 255).astype(np.uint8)
 
-    binary = binarizer.binarize(gray)
+    # CLAHE — améliore le contraste localement
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    enhanced = clahe.apply(gray_uint8)
+
+    # Détecter les zones de texte (variance locale élevée = texte), sinon le texte devient illisible si on augmente uniformémment
+    #le contraste partout
+    kernel_var = np.ones((15, 15), np.float32) / 225
+    mean = cv2.filter2D(enhanced.astype(np.float32), -1, kernel_var)
+    mean_sq = cv2.filter2D((enhanced.astype(np.float32))**2, -1, kernel_var)
+    variance = mean_sq - mean**2
+    text_mask = (variance > 500).astype(np.uint8) * 255  # zones de texte
+
+    # Canny uniquement sur les zones NON-texte (figures, graphiques)
+    edges = cv2.Canny(enhanced, threshold1=30, threshold2=100)
+    edges_figures_only = cv2.bitwise_and(edges, cv2.bitwise_not(text_mask))
+
+    kernel_edge = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+    edges_dilated = cv2.dilate(edges_figures_only, kernel_edge, iterations=1)
+
+    # Sauvola sur l'image CLAHE
+    binarizer = SauvolaBinarizer()
+    binary = binarizer.binarize(enhanced.astype(np.float64))
+
+    # Fusion : contours figures seulement
+    binary[edges_dilated == 255] = 0
+
     img = deskew(binary)
     return img
+
 
 
 def convertgrayscale(image:np.ndarray) -> np.ndarray:

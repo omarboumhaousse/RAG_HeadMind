@@ -213,3 +213,9 @@ pdfs_all/
 result/statparse
 result/docling
 OmniDocBench.json
+
+# Visualization output directories
+viz/
+
+# Input data (large files, not source code)
+pdfs/

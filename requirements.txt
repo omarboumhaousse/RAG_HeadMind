@@ -15,6 +15,8 @@ rapidfuzz==3.9.7
 matplotlib==3.7.5
 mmeval==0.2.1
 tabulate==0.9.0
+pandas
+scikit-image
 pyarrow==17.0.0
 
 
@@ -25,5 +27,9 @@ pdf2image>=1.16.3
 pillow
 pymupdf
 opencv-python>=4.8.0
-pytesseract>=0.3.10
 scikit-learn>=1.3.0
+
+# OCR engine (PaddleOCR) — strict versions required, install in this order
+paddlepaddle==3.0.0
+paddleocr==3.0.3
+paddlex==3.0.3

@@ -219,3 +219,5 @@ viz/
 
 # Input data (large files, not source code)
 pdfs/
+
+CLAUDE.md

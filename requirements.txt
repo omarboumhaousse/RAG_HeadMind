@@ -1,35 +1,66 @@
-PyYAML==6.0.2
+# ─────────────────────────────────────────────────────────────────────
+# StatParse — dependencies
+#
+# Single requirements file covering both parts of the repository:
+#   - the StatParse pipeline itself (statparse/, scripts/run_statparse.py)
+#   - the OmniDocBench evaluation harness (configs/, dataset/, metrics/,
+#     registry/, task/, utils/, scripts/pdf_validation.py)
+#
+# On Onyxia, use setup_environment.ipynb instead of installing this file
+# by hand: it applies the same list, then swaps opencv for the headless
+# build and enforces the PaddleOCR install order below, which pip cannot
+# express on its own.
+# ─────────────────────────────────────────────────────────────────────
+
+# ── StatParse runtime — PDF rendering and imaging ────────────────────
+pdf2image>=1.16.3          # needs poppler-utils installed at system level
+pymupdf
+pillow
+opencv-python>=4.8.0       # replace with opencv-python-headless on servers
+
+# ── StatParse runtime — statistical layout analysis ──────────────────
 numpy==1.24.4
 scipy==1.10.1
-tqdm==4.67.1
-loguru==0.7.2
-func-timeout==4.3.5
-pylatexenc==3.0a30
-beautifulsoup4==4.11.1
-lxml==4.9.1
-Levenshtein==0.25.1
-evaluate==0.4.3
-apted==1.0.3
-nltk==3.9.1
-rapidfuzz==3.9.7
-matplotlib==3.7.5
-mmeval==0.2.1
-tabulate==0.9.0
-pandas
-scikit-image
-pyarrow==17.0.0
+scikit-learn>=1.3.0        # BayesianGaussianMixture (VBGMM segmentation)
+scikit-image               # Sauvola thresholding
 
-
-s3fs
-
-# StatParse dependencies
-pdf2image>=1.16.3
-pillow
-pymupdf
-opencv-python>=4.8.0
-scikit-learn>=1.3.0
-
-# OCR engine (PaddleOCR) — strict versions required, install in this order
+# ── StatParse runtime — OCR engine ───────────────────────────────────
+# Strict versions, and this install order matters: paddleocr==3.0.3
+# pulls paddlex==3.5.0, which must then be downgraded to 3.0.3.
+# Installing this file in one pass does not guarantee that order —
+# see setup_environment.ipynb or the manual steps in the README.
 paddlepaddle==3.0.0
 paddleocr==3.0.3
 paddlex==3.0.3
+
+# ── Shared ───────────────────────────────────────────────────────────
+tqdm==4.67.1
+PyYAML==6.0.2
+
+# ── Evaluation harness — metrics ─────────────────────────────────────
+Levenshtein==0.25.1        # edit distance
+rapidfuzz==3.9.7
+apted==1.0.3               # tree edit distance (TEDS)
+evaluate==0.4.3
+nltk==3.9.1
+mmeval==0.2.1
+pylatexenc==3.0a30         # formula normalisation
+beautifulsoup4==4.11.1     # table HTML parsing
+lxml==4.9.1
+
+# ── Evaluation harness — data handling and reporting ─────────────────
+pandas
+pyarrow==17.0.0
+tabulate==0.9.0
+matplotlib==3.7.5
+loguru==0.7.2
+func-timeout==4.3.5
+s3fs                       # tools/import_data.py — dataset download
+
+# ── Docling baseline (optional) ──────────────────────────────────────
+# Only required to regenerate the baseline predictions via
+# tools/model_infer/docling_run.py. Left commented out on purpose: it
+# pulls in torch and several GB of pretrained weights, which defeats the
+# point of a CPU-only install. The baseline scores it produces are
+# already committed under result/.
+# docling

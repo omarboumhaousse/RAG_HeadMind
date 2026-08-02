@@ -134,6 +134,17 @@ python scripts/download_models.py
 
 No GPU required. StatParse runs entirely on CPU.
 
+### About the dependencies
+
+`requirements.txt` is a single file covering both the StatParse pipeline and the OmniDocBench evaluation harness. It is grouped into commented sections so you can see which packages belong to which part.
+
+Two things pip cannot express on its own, and which the file therefore documents rather than enforces:
+
+- **PaddleOCR install order.** `paddleocr==3.0.3` pulls `paddlex==3.5.0`, which must then be downgraded to `3.0.3`. Steps 3 above (or `setup_environment.ipynb`) handle this; a single `pip install -r requirements.txt` does not.
+- **Docling is commented out.** It is only needed to regenerate the baseline predictions with `tools/model_infer/docling_run.py`. Installing it pulls in torch and several GB of pretrained weights, which would defeat the purpose of a CPU-only install. The baseline scores it produces are already committed under `result/`. Uncomment the last line of `requirements.txt` if you want to rerun it.
+
+On Onyxia, prefer `setup_environment.ipynb` over the manual steps: it applies the same list, swaps in `opencv-python-headless`, enforces the PaddleOCR order, and verifies the resulting environment.
+
 ## Usage
 
 ### Basic

@@ -71,7 +71,7 @@ This approach is inspired by the **Docstrum algorithm** (O'Gorman, 1993) but rep
 ## Project Structure
 
 ```
-RAG_Statap_ENSAE_2025_Headminds/
+RAG_HeadMind/
 ├── statparse/          # Core pipeline package (6-step pipeline)
 │   ├── pipeline.py         # End-to-end Pipeline class
 │   ├── pdf_to_image.py     # Step 1: PDF rendering
@@ -117,8 +117,8 @@ sudo apt-get install -y poppler-utils     # Ubuntu/Debian
 brew install poppler                       # macOS
 
 # 2. Python dependencies
-git clone https://github.com/timthib/RAG_Statap_ENSAE_2025_Headminds.git
-cd RAG_Statap_ENSAE_2025_Headminds
+git clone https://github.com/omarboumhaousse/RAG_HeadMind.git
+cd RAG_HeadMind
 pip install -r requirements.txt
 pip install opencv-python-headless        # headless override for servers
 

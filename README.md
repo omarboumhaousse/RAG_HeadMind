@@ -20,6 +20,8 @@ This is a research project. We benchmark StatParse against [Docling](https://git
 ## Pipeline Architecture
 PDF ──► Page Images ──► Preprocessing ──► Geometric Segmentation ──► Semantic Classification ──► Reading Order ──► OCR ──► Markdown
 
+![StatParse pipeline architecture](tools/fig6_pipeline.png)
+
 | Stage | Method | Key Technique |
 |-------|--------|---------------|
 | **1. PDF to Image** | Rendering at 150 DPI (default) | `pdf2image` / `PyMuPDF` |
@@ -243,6 +245,8 @@ All figures below are page-level averages, so they match the numbers reported in
 | Tables | TEDS (structure only) | ↑ higher is better | **0.174** | 0.737 |
 | Display formulas | Edit distance | ↓ lower is better | **0.960** | 0.345 |
 
+![StatParse vs Docling — overall comparison](tools/fig1_overview.png)
+
 ### Resource requirements
 
 | | StatParse | Docling |
@@ -269,6 +273,8 @@ Edit distance, page average (↓ lower is better).
 | Newspaper | 0.498 | 0.312 |
 | Handwritten note | 0.651 | 0.421 |
 
+![Performance by document type](tools/fig3_by_doctype.png)
+
 ### Text blocks by language and layout
 
 Language rows are block-level averages (`group → text_language`); layout rows are page-level averages (`page`). Edit distance, ↓ lower is better.
@@ -282,6 +288,14 @@ Language rows are block-level averages (`group → text_language`); layout rows 
 | Double column | 0.411 | 0.131 |
 | Three column | **0.234** | 0.144 |
 | Other layout | 0.467 | 0.266 |
+
+![Performance by language and layout](tools/fig5_lang_layout.png)
+
+### Tables by attribute
+
+TEDS broken down by table language and structure (↑ higher is better). StatParse is weakest in absolute terms on borderless tables (0.021), where there are no ruling lines to key off — though Docling degrades there too (0.130), making it the one attribute where the two systems are close. The widest gap is on sparsely ruled tables (0.152 against 0.754).
+
+![Table TEDS by attribute](tools/fig4_table_teds.png)
 
 ### Interpretation
 

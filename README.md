@@ -5,7 +5,7 @@
 
 ## Overview
 
-**StatParse** is a lightweight, fully statistical document parsing pipeline that converts PDF documents into structured Markdown — without relying on deep learning or GPU resources.
+**StatParse** is a lightweight, fully statistical document parsing pipeline that converts PDF documents into structured Markdown, without relying on deep learning or GPU resources.
 
 The core idea: at every level of document structure (characters → words → lines → blocks → columns), spatial relationships follow **statistical distributions**. By modeling these distributions explicitly (using Variational Bayesian Gaussian Mixture Models and adaptive thresholding), we can segment and classify document elements with **zero training data** and **zero GPU compute** for the layout analysis stages.
 
@@ -27,7 +27,7 @@ PDF ──► Page Images ──► Preprocessing ──► Geometric Segmentati
 | **1. PDF to Image** | Rendering at 150 DPI (default) | `pdf2image` / `PyMuPDF` |
 | **2. Preprocessing** | Binarization, deskew, noise removal | CLAHE contrast enhancement, Sauvola thresholding, `minAreaRect`-based deskew |
 | **3a. Geometric Segmentation** | Hierarchical spatial clustering | Connected components → Delaunay triangulation → VBGMM on 2D displacement vectors → word / line / block labelling |
-| **3b. Semantic Classification** | Rule-based classifier | Features: font size ratios, position, aspect ratio, density, line count — pure if/else decision tree |
+| **3b. Semantic Classification** | Rule-based classifier | Features: font size ratios, position, aspect ratio, density, line count; pure if/else decision tree |
 | **4. Reading Order** | Column-aware sorting | X-projection gap analysis → column assignment → top-to-bottom sort per column, left-to-right across columns |
 | **5. OCR** | PaddleOCR PP-OCRv5 + PPStructureV3 | Neural OCR for text blocks; PPStructureV3 for structured Markdown table extraction |
 | **6. Markdown Serialization** | Deterministic label mapping | OmniDocBench label → Markdown syntax (title → `#`, table pass-through, equation → `$$`, etc.) |
@@ -41,7 +41,7 @@ The core novelty lies in step 3a. The algorithm works as follows:
 3. XY-cut pre-segmentation splits the page at large whitespace gaps so each region has a homogeneous gap distribution
 4. Build a neighbourhood graph via **Delaunay triangulation** (k-NN used as fallback only)
 5. Compute normalised 2D displacement vectors between neighbours
-6. Fit a **VBGMM** (Variational Bayesian GMM) — automatically selects the number of gap types
+6. Fit a **VBGMM** (Variational Bayesian GMM), which automatically selects the number of gap types
 7. Classify clusters by polar angle: angle < 30° → word gap; angle ≥ 30° → line or block gap
 8. Label every edge via MAP decision rule and merge components hierarchically (3-pass union-find)
 
@@ -110,7 +110,7 @@ RAG_HeadMind/
 
 ### On Onyxia (recommended)
 
-Open `setup_environment.ipynb` and run the cells in order. It installs all dependencies, pins the correct PaddleOCR versions, and downloads the models (~3–5 min).
+Open `setup_environment.ipynb` and run the cells in order. It installs all dependencies, pins the correct PaddleOCR versions, and downloads the models (~3-5 min).
 
 ### Manual setup
 
@@ -125,12 +125,12 @@ cd RAG_HeadMind
 pip install -r requirements.txt
 pip install opencv-python-headless        # headless override for servers
 
-# 3. PaddleOCR — strict version order required
+# 3. PaddleOCR: strict version order required
 pip install paddlepaddle==3.0.0
 pip install paddleocr==3.0.3
 pip install paddlex==3.0.3               # downgrade from 3.5.0 pulled by paddleocr
 
-# 4. Download OCR models (~3–5 min, saved to ~/.paddlex/official_models/)
+# 4. Download OCR models (~3-5 min, saved to ~/.paddlex/official_models/)
 python scripts/download_models.py
 ```
 
@@ -188,7 +188,7 @@ for page_image in images:
 
 ### Evaluation framework
 
-The folders `configs/`, `registry/`, `dataset/`, `metrics/`, `task/`, and `utils/` are taken directly from the [OmniDocBench repository](https://github.com/opendatalab/OmniDocBench) and form a self-contained evaluation harness. StatParse does not depend on them at runtime — they only come into play when scoring parser output.
+The folders `configs/`, `registry/`, `dataset/`, `metrics/`, `task/`, and `utils/` are taken directly from the [OmniDocBench repository](https://github.com/opendatalab/OmniDocBench) and form a self-contained evaluation harness. StatParse does not depend on them at runtime; they only come into play when scoring parser output.
 
 The two systems are fully decoupled: StatParse writes Markdown files to `result/statparse/`, and the OmniDocBench harness reads those files, matches them against the ground truth, and computes scores. Nothing in `statparse/` imports from these folders.
 
@@ -230,7 +230,7 @@ Run both to compare StatParse against Docling on the same OmniDocBench ground tr
 
 ## Results
 
-Both systems were scored on the same OmniDocBench ground truth, with the same `quick_match` alignment and the same metric code: 1,290 pages for text blocks and reading order, 351 pages containing tables, and 160 pages containing display formulas. Raw outputs are committed in `result/` — `statparse_quick_match_metric_result.json` and `docling_quick_match_metric_result.json`.
+Both systems were scored on the same OmniDocBench ground truth, with the same `quick_match` alignment and the same metric code: 1,290 pages for text blocks and reading order, 351 pages containing tables, and 160 pages containing display formulas. Raw outputs are committed in `result/`: `statparse_quick_match_metric_result.json` and `docling_quick_match_metric_result.json`.
 
 All figures below are page-level averages, so they match the numbers reported in the JSON under `page → ALL`.
 
@@ -245,17 +245,17 @@ All figures below are page-level averages, so they match the numbers reported in
 | Tables | TEDS (structure only) | ↑ higher is better | **0.174** | 0.737 |
 | Display formulas | Edit distance | ↓ lower is better | **0.960** | 0.345 |
 
-![StatParse vs Docling — overall comparison](tools/fig1_overview.png)
+![StatParse vs Docling overall comparison](tools/fig1_overview.png)
 
 ### Resource requirements
 
 | | StatParse | Docling |
 |---|---|---|
-| **GPU required** | No — CPU only | Recommended (layout and table transformers) |
-| **Training data** | None — no pretrained or fitted weights | Pretrained layout and table models |
+| **GPU required** | No, CPU only | Recommended (layout and table transformers) |
+| **Training data** | None, no pretrained or fitted weights | Pretrained layout and table models |
 | **Learned components** | VBGMM fitted per page at inference time | Deep models trained offline |
 
-StatParse uses PaddleOCR for text recognition only (step 5). Layout analysis — preprocessing, segmentation, classification, and reading order (steps 2–4) — involves no learned model and no training data. This is the part of the pipeline the results below are really measuring.
+StatParse uses PaddleOCR for text recognition only (step 5). Layout analysis (preprocessing, segmentation, classification, and reading order, steps 2 to 4) involves no learned model and no training data. This is the part of the pipeline the results below are really measuring.
 
 ### Text blocks by document type
 
@@ -293,7 +293,7 @@ Language rows are block-level averages (`group → text_language`); layout rows 
 
 ### Tables by attribute
 
-TEDS broken down by table language and structure (↑ higher is better). StatParse is weakest in absolute terms on borderless tables (0.021), where there are no ruling lines to key off — though Docling degrades there too (0.130), making it the one attribute where the two systems are close. The widest gap is on sparsely ruled tables (0.152 against 0.754).
+TEDS broken down by table language and structure (↑ higher is better). StatParse is weakest in absolute terms on borderless tables (0.021), where there are no ruling lines to key off, though Docling degrades there too (0.130), making it the one attribute where the two systems are close. The widest gap is on sparsely ruled tables (0.152 against 0.754).
 
 ![Table TEDS by attribute](tools/fig4_table_teds.png)
 
@@ -301,11 +301,11 @@ TEDS broken down by table language and structure (↑ higher is better). StatPar
 
 Docling outperforms StatParse on every element type. That is the expected outcome and we do not claim otherwise. The question this benchmark answers is *how much* performance a fully statistical pipeline gives up, and on which parts of the problem.
 
-**Text and reading order — the hypothesis holds.** Expressed as character-level accuracy (1 − edit distance), StatParse reaches 0.616 against Docling's 0.824 on text blocks, retaining roughly 75% of the baseline's accuracy. On reading order the figures are 0.647 against 0.817, roughly 79%. These are precisely the stages where StatParse replaces a neural model with statistics — VBGMM segmentation, a rule-based classifier, X-projection column detection — and it recovers about three quarters of a GPU baseline with no training data and no GPU.
+**Text and reading order: the hypothesis holds.** Expressed as character-level accuracy (1 - edit distance), StatParse reaches 0.616 against Docling's 0.824 on text blocks, retaining roughly 75% of the baseline's accuracy. On reading order the figures are 0.647 against 0.817, roughly 79%. These are precisely the stages where StatParse replaces a neural model with statistics (VBGMM segmentation, a rule-based classifier, X-projection column detection), and it recovers about three quarters of a GPU baseline with no training data and no GPU.
 
-The gap narrows on structured, regular documents: research reports (0.187) and three-column layouts (0.234) are where StatParse comes closest to Docling. This is consistent with the method's core assumption, that inter-component spacing follows a clean multimodal distribution. Performance degrades exactly where that assumption breaks down — handwritten notes (0.651) and newspapers (0.498), which have irregular or heterogeneous spacing.
+The gap narrows on structured, regular documents: research reports (0.187) and three-column layouts (0.234) are where StatParse comes closest to Docling. This is consistent with the method's core assumption, that inter-component spacing follows a clean multimodal distribution. Performance degrades exactly where that assumption breaks down: handwritten notes (0.651) and newspapers (0.498), which have irregular or heterogeneous spacing.
 
-**Tables and formulas — the hypothesis does not hold.** A TEDS of 0.156 against 0.667, and a formula edit distance of 0.960, mean StatParse essentially fails on these two element types. Both require recovering internal structure — cell grids, LaTeX syntax — which is a recognition problem rather than a spatial-clustering problem, and the statistical approach has no mechanism for it. Closing this gap would require either a dedicated model or a substantially different algorithm; the current PPStructureV3 pass-through does not.
+**Tables and formulas: the hypothesis does not hold.** A TEDS of 0.156 against 0.667, and a formula edit distance of 0.960, mean StatParse essentially fails on these two element types. Both require recovering internal structure (cell grids, LaTeX syntax), which is a recognition problem rather than a spatial-clustering problem, and the statistical approach has no mechanism for it. Closing this gap would require either a dedicated model or a substantially different algorithm; the current PPStructureV3 pass-through does not.
 
 **Takeaway.** A GPU-free, training-free pipeline is a credible option for text extraction and reading order in resource-constrained environments, and is not currently a viable one for table and formula parsing.
 

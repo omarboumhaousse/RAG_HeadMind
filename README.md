@@ -86,7 +86,8 @@ RAG_HeadMind/
 ├── task/               # Evaluation task runners
 ├── registry/           # Plugin registry (datasets, metrics, tasks)
 ├── utils/              # Shared utilities (matching, table conversion, etc.)
-├── tools/              # External tool integrations (Docling baseline)
+├── tools/              # Docling baseline runner, result figures and notebooks
+├── result/             # Committed benchmark scores (see Results)
 ├── configs/            # YAML evaluation configurations
 ├── viz/                # Visualization outputs (gitignored)
 │   ├── compare/            # GT vs pipeline classification & reading order
@@ -213,6 +214,75 @@ python scripts/pdf_validation.py --config ./configs/end2end.yaml
 ```
 
 Run both to compare StatParse against Docling on the same OmniDocBench ground truth.
+
+## Results
+
+Both systems were scored on the same OmniDocBench ground truth, with the same `quick_match` alignment and the same metric code: 1,290 pages for text blocks and reading order, 351 pages containing tables, and 160 pages containing display formulas. Raw outputs are committed in `result/` — `statparse_quick_match_metric_result.json` and `docling_quick_match_metric_result.json`.
+
+All figures below are page-level averages, so they match the numbers reported in the JSON under `page → ALL`.
+
+### Overall comparison
+
+| Element | Metric | Direction | StatParse | Docling |
+|---|---|---|---|---|
+| Text blocks | Edit distance | ↓ lower is better | **0.384** | 0.176 |
+| Reading order | Edit distance | ↓ lower is better | **0.353** | 0.183 |
+| Tables | Edit distance | ↓ lower is better | **0.834** | 0.643 |
+| Tables | TEDS | ↑ higher is better | **0.156** | 0.667 |
+| Tables | TEDS (structure only) | ↑ higher is better | **0.174** | 0.737 |
+| Display formulas | Edit distance | ↓ lower is better | **0.960** | 0.345 |
+
+### Resource requirements
+
+| | StatParse | Docling |
+|---|---|---|
+| **GPU required** | No — CPU only | Recommended (layout and table transformers) |
+| **Training data** | None — no pretrained or fitted weights | Pretrained layout and table models |
+| **Learned components** | VBGMM fitted per page at inference time | Deep models trained offline |
+
+StatParse uses PaddleOCR for text recognition only (step 5). Layout analysis — preprocessing, segmentation, classification, and reading order (steps 2–4) — involves no learned model and no training data. This is the part of the pipeline the results below are really measuring.
+
+### Text blocks by document type
+
+Edit distance, page average (↓ lower is better).
+
+| Document type | StatParse | Docling |
+|---|---|---|
+| Research report | **0.187** | 0.037 |
+| Book | 0.278 | 0.116 |
+| Academic literature | 0.310 | 0.063 |
+| Magazine | 0.311 | 0.093 |
+| Colorful textbook | 0.345 | 0.227 |
+| PPT2PDF | 0.385 | 0.096 |
+| Exam paper | 0.414 | 0.218 |
+| Newspaper | 0.498 | 0.312 |
+| Handwritten note | 0.651 | 0.421 |
+
+### Text blocks by language and layout
+
+Language rows are block-level averages (`group → text_language`); layout rows are page-level averages (`page`). Edit distance, ↓ lower is better.
+
+| Split | StatParse | Docling |
+|---|---|---|
+| English text | 0.400 | 0.153 |
+| Simplified Chinese text | 0.485 | 0.218 |
+| Mixed EN/CH text | 0.641 | 0.462 |
+| Single column | 0.355 | 0.168 |
+| Double column | 0.411 | 0.131 |
+| Three column | **0.234** | 0.144 |
+| Other layout | 0.467 | 0.266 |
+
+### Interpretation
+
+Docling outperforms StatParse on every element type. That is the expected outcome and we do not claim otherwise. The question this benchmark answers is *how much* performance a fully statistical pipeline gives up, and on which parts of the problem.
+
+**Text and reading order — the hypothesis holds.** Expressed as character-level accuracy (1 − edit distance), StatParse reaches 0.616 against Docling's 0.824 on text blocks, retaining roughly 75% of the baseline's accuracy. On reading order the figures are 0.647 against 0.817, roughly 79%. These are precisely the stages where StatParse replaces a neural model with statistics — VBGMM segmentation, a rule-based classifier, X-projection column detection — and it recovers about three quarters of a GPU baseline with no training data and no GPU.
+
+The gap narrows on structured, regular documents: research reports (0.187) and three-column layouts (0.234) are where StatParse comes closest to Docling. This is consistent with the method's core assumption, that inter-component spacing follows a clean multimodal distribution. Performance degrades exactly where that assumption breaks down — handwritten notes (0.651) and newspapers (0.498), which have irregular or heterogeneous spacing.
+
+**Tables and formulas — the hypothesis does not hold.** A TEDS of 0.156 against 0.667, and a formula edit distance of 0.960, mean StatParse essentially fails on these two element types. Both require recovering internal structure — cell grids, LaTeX syntax — which is a recognition problem rather than a spatial-clustering problem, and the statistical approach has no mechanism for it. Closing this gap would require either a dedicated model or a substantially different algorithm; the current PPStructureV3 pass-through does not.
+
+**Takeaway.** A GPU-free, training-free pipeline is a credible option for text extraction and reading order in resource-constrained environments, and is not currently a viable one for table and formula parsing.
 
 ## Roadmap
 

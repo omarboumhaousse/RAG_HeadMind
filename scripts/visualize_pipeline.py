@@ -138,7 +138,7 @@ def resize_to_width(img: np.ndarray, target_w: int) -> np.ndarray:
 
 def viz_step1_original(page_rgb: np.ndarray, total: int) -> np.ndarray:
     print("  Étape 1: Image originale...")
-    img = add_title_bar(page_rgb.copy(), "Image Originale (PDF)", 1, total,
+    img = add_title_bar(page_rgb.copy(), "Original page (PDF render)", 1, total,
                         bg_color=(20, 40, 80))
     return img
 
@@ -172,7 +172,7 @@ def viz_step2_binarisation(page_rgb: np.ndarray,
     draw.text((w//3 + 12, 10), "Binarisé (Sauvola thresholding)", fill=(30, 30, 30), font=font)
     combined = np.array(pil)
 
-    return add_title_bar(combined, "Binarisation — Sauvola Thresholding", 2, total,
+    return add_title_bar(combined, "Preprocessing: Sauvola binarisation", 2, total,
                           bg_color=(40, 20, 80))
 
 
@@ -225,7 +225,7 @@ def viz_step3_segmentation(page_rgb: np.ndarray,
     dleg.text((10, 12), text, fill=(50, 50, 50), font=fleg)
     result = np.vstack([result, np.array(pleg)])
 
-    return add_title_bar(result, "Segmentation — VBGMM + Triangulation Delaunay", 3, total,
+    return add_title_bar(result, "Segmentation: VBGMM + Delaunay triangulation", 3, total,
                           bg_color=(20, 60, 40))
 
 
@@ -278,7 +278,7 @@ def viz_step4_classification(page_rgb: np.ndarray,
         if x > result.shape[1] - 60: break
     result = np.vstack([result, np.array(pleg)])
 
-    return add_title_bar(result, "Classification — Heuristiques Géométriques", 4, total,
+    return add_title_bar(result, "Classification: geometric heuristics", 4, total,
                           bg_color=(60, 20, 60))
 
 
@@ -355,7 +355,7 @@ def viz_step5_reading_order(page_rgb: np.ndarray,
               fill=(50,50,50), font=fleg)
     result = np.vstack([result, np.array(pleg)])
 
-    return add_title_bar(result, "Ordre de Lecture — Détection Colonnes + Tri", 5, total,
+    return add_title_bar(result, "Reading order: column detection + sort", 5, total,
                           bg_color=(60, 40, 20))
 
 
@@ -417,7 +417,7 @@ def viz_step6_ocr(page_rgb: np.ndarray,
               fill=(50,50,50), font=fleg)
     result = np.vstack([result, np.array(pleg)])
 
-    return add_title_bar(result, "OCR — PaddleOCR PP-OCRv5 + PPStructureV3 (tableaux)", 6, total,
+    return add_title_bar(result, "OCR: PaddleOCR PP-OCRv5 + PPStructureV3", 6, total,
                           bg_color=(20, 60, 60))
 
 

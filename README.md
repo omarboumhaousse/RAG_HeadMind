@@ -334,10 +334,12 @@ This is an academic research project. If you want to contribute:
 
 Please follow the module structure. Each pipeline step is an independent module with clear input/output contracts.
 
+## Contributors
+
+StatParse is a collective project built by a team of three students as part of the *Statistical Application Project* (StatApp) at [ENSAE Paris](https://www.ensae.fr/), in partnership with [HeadMind Partners](https://www.headmind.com/).
+
+The work covers the full research cycle: literature review, pipeline design, implementation, and benchmarking against a production baseline on a standard dataset.
+
 ## License
 
 MIT License. See [LICENSE](LICENSE) for details.
-
-## Acknowledgments
-
-This project is conducted as part of a student research initiative exploring lightweight statistical alternatives to deep learning for document understanding in RAG systems.

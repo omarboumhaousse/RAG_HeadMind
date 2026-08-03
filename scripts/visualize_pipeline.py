@@ -169,7 +169,7 @@ def viz_step2_binarisation(page_rgb: np.ndarray,
     draw = ImageDraw.Draw(pil)
     font = _font(max(14, h // 60))
     draw.text((10, 10), "Original", fill=(200, 100, 50), font=font)
-    draw.text((w//3 + 12, 10), "Binarisé (Sauvola thresholding)", fill=(30, 30, 30), font=font)
+    draw.text((w//3 + 12, 10), "Binarised (Sauvola thresholding)", fill=(30, 30, 30), font=font)
     combined = np.array(pil)
 
     return add_title_bar(combined, "Preprocessing: Sauvola binarisation", 2, total,

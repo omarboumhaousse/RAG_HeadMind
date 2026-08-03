@@ -220,4 +220,9 @@ viz/
 # Input data (large files, not source code)
 pdfs/
 
+# Per-stage pipeline renders (~27 MB of full-resolution page images).
+# tools/compose_pipeline_figure.py turns these into tools/fig9_pipeline_page.png,
+# which is the one that gets committed.
+pipeline_visualization/
+
 CLAUDE.md

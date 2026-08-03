@@ -96,7 +96,7 @@ RAG_HeadMind/
 │   ├── ocr.py              # Step 5: PaddleOCR integration
 │   └── serialization.py    # Step 6: Markdown output
 ├── dataset/            # OmniDocBench dataset loaders
-├── metrics/            # Evaluation metrics (TEDS, CDM, Edit Distance, BLEU)
+├── metrics/            # Evaluation metrics (TEDS, Edit Distance, BLEU)
 ├── task/               # Evaluation task runners
 ├── registry/           # Plugin registry (datasets, metrics, tasks)
 ├── utils/              # Shared utilities (matching, table conversion, etc.)
@@ -218,7 +218,7 @@ Metrics are configured per element type in `configs/end2end_statparse.yaml`:
 |---|---|---|
 | Text blocks | Edit Distance | Character-level accuracy of extracted text |
 | Tables | TEDS + Edit Distance | Tree Edit Distance Similarity for table structure + text accuracy |
-| Formulas | CDM + Edit Distance | Content Difference Metric for formula visual similarity + text accuracy |
+| Formulas | Edit Distance | Character-level accuracy of extracted formula text |
 | Reading order | Edit Distance | Sequence-level correctness of block ordering |
 
 ### Running Evaluation

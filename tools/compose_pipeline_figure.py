@@ -16,7 +16,9 @@ SRC = REPO / "pipeline_visualization"
 OUT = REPO / "tools" / "fig9_pipeline_page.png"
 
 BAR_H = 215          # measured height of the broken title bar
-TARGET_W = 900       # per-panel width after downscaling
+TARGET_W = 1340      # per-panel width after downscaling
+COLS = 2             # two panels per row: at three the pages render too
+                     # small to read once GitHub scales the figure down
 
 INK = "#0b0b0b"
 MUTED = "#898781"
@@ -44,7 +46,12 @@ def load(name, extra_top=0):
 
 def main():
     imgs = [load(s[0], s[3] if len(s) > 3 else 0) for s in STEPS]
-    fig, axes = plt.subplots(2, 3, figsize=(16.5, 12.4), facecolor=SURFACE)
+    rows = -(-len(STEPS) // COLS)
+    aspect = imgs[0].height / imgs[0].width
+    panel_in = 7.4                                   # inches per panel
+    fig_w = COLS * panel_in + 0.6
+    fig_h = rows * panel_in * aspect + 1.5
+    fig, axes = plt.subplots(rows, COLS, figsize=(fig_w, fig_h), facecolor=SURFACE)
     for ax, im, step in zip(axes.ravel(), imgs, STEPS):
         title, sub = step[1], step[2]
         ax.imshow(im)
@@ -53,15 +60,22 @@ def main():
         for s in ax.spines.values():
             s.set_edgecolor("#d8d7d0")
             s.set_linewidth(1)
-        ax.set_title(title, fontsize=15, fontweight="bold", color=INK, pad=13, loc="left")
-        ax.text(0, -0.022, sub, transform=ax.transAxes, fontsize=11,
+        ax.set_title(title, fontsize=19, fontweight="bold", color=INK, pad=14, loc="left")
+        ax.text(0, -0.016, sub, transform=ax.transAxes, fontsize=13,
                 color=MUTED, va="top", ha="left")
     fig.suptitle("StatParse pipeline, stage by stage on one page",
-                 fontsize=20, fontweight="bold", color=INK, y=0.975)
-    fig.subplots_adjust(left=0.02, right=0.98, top=0.90, bottom=0.045,
-                        wspace=0.09, hspace=0.17)
-    fig.savefig(OUT, dpi=110, facecolor=SURFACE)
-    print("wrote", OUT, Image.open(OUT).size)
+                 fontsize=25, fontweight="bold", color=INK, y=0.988)
+    fig.subplots_adjust(left=0.02, right=0.98, top=0.945, bottom=0.028,
+                        wspace=0.07, hspace=0.10)
+    fig.savefig(OUT, dpi=100, facecolor=SURFACE)
+
+    # The panels are scanned pages on a near-white ground, so a 256-colour
+    # palette is visually identical at 1:1 and cuts the file from ~2.4 MB
+    # to ~0.5 MB. Worth it for a figure this large in a README.
+    im = Image.open(OUT).convert("RGB")
+    im.convert("P", palette=Image.ADAPTIVE, colors=256).save(OUT, optimize=True)
+    print("wrote", OUT, Image.open(OUT).size,
+          "%.2f MB" % (OUT.stat().st_size / 1048576))
 
 
 if __name__ == "__main__":

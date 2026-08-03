@@ -351,7 +351,7 @@ def viz_step5_reading_order(page_rgb: np.ndarray,
     dleg = ImageDraw.Draw(pleg)
     fleg = _font(14)
     dleg.text((10, 12),
-              f"{len(ordered)} blocs ordonnés  |  Détection colonnes par gap X  |  Flèches = séquence de lecture",
+              f"{len(ordered)} ordered blocks  |  Columns detected by X-gap  |  Arrows = reading sequence",
               fill=(50,50,50), font=fleg)
     result = np.vstack([result, np.array(pleg)])
 
@@ -485,8 +485,8 @@ def make_overview(steps_imgs: list[tuple[str, np.ndarray]],
     draw = ImageDraw.Draw(pil)
     font_big  = _font(28)
     font_small = _font(16)
-    main_title = "StatParse — Pipeline de Traitement Documentaire"
-    sub_title  = f"PDF : {pdf_name}   |   Étapes : {n}"
+    main_title = "StatParse document parsing pipeline"
+    sub_title  = f"PDF: {pdf_name}   |   Stages: {n}"
     tb = draw.textbbox((0,0), main_title, font=font_big)
     tx = grid.shape[1]//2 - (tb[2]-tb[0])//2
     draw.text((tx, 8), main_title, fill=(255,255,255), font=font_big)

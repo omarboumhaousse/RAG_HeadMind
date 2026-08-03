@@ -1,7 +1,7 @@
 # StatParse: A Statistical Document Parsing Pipeline for RAG Systems
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10-3.11](https://img.shields.io/badge/python-3.10--3.11-blue.svg)](https://www.python.org/downloads/)
 
 ## Overview
 
@@ -154,6 +154,7 @@ No GPU required. StatParse runs entirely on CPU.
 
 Two things pip cannot express on its own, and which the file therefore documents rather than enforces:
 
+- **Python 3.10 or 3.11.** The pinned `numpy` and `scipy` versions have no wheels beyond 3.11, so the install fails on 3.12 and later.
 - **PaddleOCR install order.** `paddleocr==3.0.3` pulls `paddlex==3.5.0`, which must then be downgraded to `3.0.3`. Steps 3 above (or `setup_environment.ipynb`) handle this; a single `pip install -r requirements.txt` does not.
 - **Docling is commented out.** It is only needed to regenerate the baseline predictions with `tools/model_infer/docling_run.py`. Installing it pulls in torch and several GB of pretrained weights, which would defeat the purpose of a CPU-only install. The baseline scores it produces are already committed under `result/`. Uncomment the last line of `requirements.txt` if you want to rerun it.
 
@@ -357,8 +358,7 @@ This is an academic research project. If you want to contribute:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/step-3a-segmentation`)
-3. Write tests for your module
-4. Submit a pull request with a description of what you implemented and why
+3. Submit a pull request with a description of what you implemented and why
 
 Please follow the module structure. Each pipeline step is an independent module with clear input/output contracts.
 

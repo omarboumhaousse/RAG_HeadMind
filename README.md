@@ -70,6 +70,18 @@ Connected Components
 
 This approach is inspired by the **Docstrum algorithm** (O'Gorman, 1993) but replaces fixed k-NN with Delaunay triangulation and uses VBGMM instead of manual threshold tuning.
 
+### The pipeline on a real page
+
+Each stage applied to a single OmniDocBench page. Segmentation shows the connected components grouped into blocks, classification shows the assigned labels, and reading order shows the resulting sequence.
+
+![StatParse pipeline stage by stage on one page](tools/fig9_pipeline_page.png)
+
+Reproduce this on any PDF with:
+
+```bash
+python scripts/visualize_pipeline.py --pdf path/to/document.pdf --dpi 150
+```
+
 ## Project Structure
 
 ```
@@ -308,6 +320,8 @@ The gap narrows on structured, regular documents: research reports (0.187) and t
 **Tables and formulas: the hypothesis does not hold.** A TEDS of 0.156 against 0.667, and a formula edit distance of 0.960, mean StatParse essentially fails on these two element types. Both require recovering internal structure (cell grids, LaTeX syntax), which is a recognition problem rather than a spatial-clustering problem, and the statistical approach has no mechanism for it. Closing this gap would require either a dedicated model or a substantially different algorithm; the current PPStructureV3 pass-through does not.
 
 **Takeaway.** A GPU-free, training-free pipeline is a credible option for text extraction and reading order in resource-constrained environments, and is not currently a viable one for table and formula parsing.
+
+![StatParse strengths and areas for improvement](tools/fig8_analysis.png)
 
 ## Roadmap
 
